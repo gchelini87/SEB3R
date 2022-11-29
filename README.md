@@ -7,4 +7,4 @@ https://it.mathworks.com/matlabcentral/fileexchange/52743-number-to-letter
 https://it.mathworks.com/matlabcentral/fileexchange/65823-kmeans_opt
 
 
-Specific instruction for using the pipeline will be uploaded soon. If you need support private message me and I'll be happy to help.
+Specific instruction for using the pipeline will be uploaded soon. If you need support don't hesitate to private message me and I'll be happy to help.
