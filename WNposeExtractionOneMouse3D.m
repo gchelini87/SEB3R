@@ -141,8 +141,8 @@ function WNPoseExtractionOneMouse3D(Mouse)
     
     %Create a string vetor with the Animal Code to include with the Cluster
     %Mean Summary
-    code=strings(length(ClusterSummary));
-    code(:)=[str2num(Mouse)];
+    code=strings(length(ClusterSummary), 1);
+    code(:)=Mouse;
     
     %Generate Cluster Mean Summary for both Ycoordinates and Distances
     AllClustersMean=[code,AllClustersMean,ClusterSummary(:,2:end)];
