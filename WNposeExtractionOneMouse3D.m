@@ -62,7 +62,7 @@ function WNPoseExtractionOneMouse3D(Mouse)
     
     % TIME FOR CLUSTERING         
     % FIXME the number of clusters should be changed
-    Elbow=kmeans_opt(DistMatrix, 4);  %K-mean clustering using Elbow method to determine optilan number (UNSUPERVISED)
+    Elbow=kmeans_opt(DistMatrix);  %K-mean clustering using Elbow method to determine optilan number (UNSUPERVISED)
     Clusters=unique(Elbow);
     for i=1:length(Clusters);
         counts(i)=sum(Elbow==Clusters(i));
@@ -116,7 +116,7 @@ function WNPoseExtractionOneMouse3D(Mouse)
          NameCluster=string(num2let(Cluster2Explore));
          %assignin('base',NameCluster,Cluster);
          
-         writematrix(Cluster, ['C' num2str(Cluster2Explore) '.csv']);
+         writematrix(Cluster, [Pathdir '/Clusters/C' num2str(Cluster2Explore) '.csv']);
          ClusterMean=[mean(Cluster(:,2:7))];
          
          %Create a Representative Scatter Plot for the Cluster just analyzed
@@ -126,14 +126,14 @@ function WNPoseExtractionOneMouse3D(Mouse)
          plot(Xcoord,Ycoord,'-x');
          
          ClusterIndex=(ClusterIndex+1);
+         saveas(gcf, [Pathdir '/Clusters/' num2str(ind) '-' num2str(Cluster2Explore) '.png']);
          AllClustersMean(Cluster2Explore,:)=mean(Cluster(:,2:end));
-
-         saveas(gcf, [Pathdir '/Clusters/' num2str(ind) '.png']);
+         
          clear Cluster
     end
     
     %Average the ClusteredDist Matrix for future analysis
-    for DistIndex=1:length(ClusterSummary);
+    for DistIndex=1:length(ClusterSummary)
         [Dist2Avg]=find(ClusteredDist(:,17)==DistIndex);
         toAVG=[ClusteredDist(Dist2Avg,2:16)];
         ClusteredDistMeans(DistIndex,:)=[mean(toAVG),DistIndex];
