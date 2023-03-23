@@ -60,7 +60,8 @@ function WNPoseExtractionOneMouse3D(Mouse)
     
     clear Nose Eyes Neck MidBack LowBack Tail
     
-    % TIME FOR CLUSTERING                             
+    % TIME FOR CLUSTERING         
+    % FIXME the number of clusters should be changed
     Elbow=kmeans_opt(DistMatrix, 4);  %K-mean clustering using Elbow method to determine optilan number (UNSUPERVISED)
     Clusters=unique(Elbow);
     for i=1:length(Clusters);
@@ -140,8 +141,8 @@ function WNPoseExtractionOneMouse3D(Mouse)
     
     %Create a string vetor with the Animal Code to include with the Cluster
     %Mean Summary
-    code=strings(length(AllClustersMean),1);
-    code(:)=[SHAMname(1:3)];
+    code=strings(length(ClusterSummary));
+    code(:)=[str2num(Mouse)];
     
     %Generate Cluster Mean Summary for both Ycoordinates and Distances
     AllClustersMean=[code,AllClustersMean,ClusterSummary(:,2:end)];
@@ -153,6 +154,8 @@ function WNPoseExtractionOneMouse3D(Mouse)
 
     ClusterDir = [Pathdir '/Clusters/'];
     SummaryDir = [Pathdir '/Summary/'];
+    mkdir(ClusterDir);
+    mkdir(SummaryDir);
 
     %Print Outcome in CSV files
     writematrix(AllClustersMean, [SummaryDir 'Mouse' Mouse 'CoordMeans.csv']);
