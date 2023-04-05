@@ -3,9 +3,10 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     % Import data from CSV file. Copy full path and file name
     pathdir = [pathdir '/' Mouse];
-    [labels, files] = GetCSVs(pathdir, Mouse);
-
-        [nSubjs, frames, cols] = size(matrix);
+    [labels, csvs] = GetCSVs(pathdir, Mouse);
+    matrix = LoadCSVsAsMatrix(pathdir, csvs);
+    
+    [nSubjs, frames, cols] = size(matrix);
 
     % Take all subjects and concat them in our matrix.
     % The reason this looks ugly is that:
@@ -36,10 +37,10 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
     % by enumerating all body-part pairs
 
     DistMatrix = [];
-    [_, bodyparts] = size(ThisMouseY);
+    [yframes, bodyparts] = size(ThisMouseY);
 
-    for i=(1:bodyparts);
-        for j=(i+1:bodyparts);
+    for i=(1:bodyparts)
+        for j=(i+1:bodyparts)
             DistMatrix(end+1, :) = ThisMouseY(:, i) - ThisMouseY(:, j);
         end
     end
@@ -48,9 +49,9 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     % TIME FOR CLUSTERING
     % FIXME the number of clusters should/could be fixed
-    Elbow=kmeans_opt(DistMatrix, 4);  %K-mean clustering using Elbow method to determine optilan number (UNSUPERVISED)
+    Elbow=kmeans_opt(DistMatrix);  %K-mean clustering using Elbow method to determine optilan number (UNSUPERVISED)
     Clusters=unique(Elbow);
-    for i=1:length(Clusters);
+    for i=1:length(Clusters)
         counts(i)=sum(Elbow==Clusters(i));
     end
 
@@ -67,11 +68,11 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     for subjId=0:nSubjs-1
         label = labels{subjId+1};
-        clustered = [ClusteredYData(frames*subjId+1:frames*(subjId+1)),:];
+        clustered = ClusteredYData(frames*subjId+1:frames*(subjId+1), :);
         title = [label ' poses overtime'];
-        disp(title)
-        figure ('Name', title);
+        fig = figure ('Name', title);
         scatter(clustered(:, 1), clustered(:, 8));
+        saveas(fig, [pathdir '/' label '_over_time.png']);
     end
 
     
@@ -82,12 +83,12 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
     disp(pathdir)
     mkdir([pathdir '/Clusters/']);
 
-    for Cluster2Explore=1:length(ClusterSummary);
+    for Cluster2Explore=1:length(ClusterSummary)
         num=length(ClusteredYData);
         ClusterIndex=0;
 
-        for ind=1:num;
-            if ClusteredYData(ind,8)==Cluster2Explore;
+        for ind=1:num
+            if ClusteredYData(ind,8)==Cluster2Explore
                 ClusterIndex=(ClusterIndex+1);
                 Cluster(ClusterIndex,1:8)=ClusteredYData(ind,1:8);
 
@@ -101,10 +102,11 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
         ClusterMean=[mean(Cluster(:,2:7))];
 
         %Create a Representative Scatter Plot for the Cluster just analyzed
-        figure('Name',NameCluster);
+        fig = figure('Name',NameCluster);
         Ycoord=[ClusterMean/-1];
         Xcoord=[1:6];
         plot(Xcoord,Ycoord,'-x');
+        saveas(fig, [pathdir '/Clusters/C' label '_rep.png']);
 
         ClusterIndex=(ClusterIndex+1);
         saveas(gcf, [pathdir '/Clusters/' num2str(ind) '-' num2str(Cluster2Explore) '.png']);
@@ -147,8 +149,8 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     for subjId=0:nSubjs-1
         label = labels{subjId+1};
-        clustered = [ClusteredYData(frames*subjId+1:frames*(subjId+1)),:];
-        writematrix(ClusteredOF, [ClusterDir 'Clustered' label '.csv']);
+        clustered = [ClusteredYData(frames*subjId+1:frames*(subjId+1), :)];
+        writematrix(clustered, [ClusterDir 'Clustered' label '.csv']);
     end
 
 
@@ -157,7 +159,7 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     %Print Clusters into CSV files
 
-    set(1, 'DefaultFigureVisible', 'off');
+    set(0, 'DefaultFigureVisible', 'on');
 end
 
 function [labels, fileList]=GetCSVs(pathdir, mouse)
@@ -166,7 +168,6 @@ function [labels, fileList]=GetCSVs(pathdir, mouse)
     nfiles = size(files);
     fileList = {};
     labels = {};
-    fileListIdx = 1;
     for i = 1:nfiles
         filename = files(i).name;
         if endsWith(filename, ".csv")
@@ -196,13 +197,4 @@ function out=LoadCSVsAsMatrix(mousePathdir, csvs)
         matrix = readmatrix([mousePathdir '/' csv]);
         out(i, :, :) = matrix(1:frames, :);
     end
-end
-
-% TODO: remove when using matlab
-function out=readmatrix(path)
-    out = dlmread(path, ',', 3, 0);
-end
-
-function writematrix(matrix, path)
-    dlmwrite(path, matrix, ',');
 end

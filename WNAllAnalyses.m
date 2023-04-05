@@ -3,6 +3,7 @@
 % (we default to 'WN results' as a good reference for you).
 
 pathdir = uigetdir();
+%pathdir = 'WN results';
 files = dir(pathdir);
 nfiles = size(files);
 disp(size(nfiles));
