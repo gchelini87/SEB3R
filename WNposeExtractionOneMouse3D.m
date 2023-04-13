@@ -5,6 +5,9 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
     pathdir = [pathdir '/' Mouse];
     [labels, csvs] = GetCSVs(pathdir, Mouse);
     matrix = LoadCSVsAsMatrix(pathdir, csvs);
+
+    meanDistancesPathdir = [pathdir '/Mean Distances/'];
+    mkdir meanDistancesPathdir;
     
     [nSubjs, frames, cols] = size(matrix);
 
@@ -142,7 +145,7 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
 
     %Print Outcome in CSV files
     writematrix(AllClustersMean, [SummaryDir 'Mouse' Mouse 'CoordMeans.csv']);
-    writematrix(ClusteredDistMeans, [SummaryDir 'Mouse' Mouse 'DistMeans.csv']);
+    writematrix(ClusteredDistMeans, [meanDistancesPathdir 'Mouse' Mouse 'DistMeans.csv']);
     writematrix(ClusteredYData, [SummaryDir 'Clustered' Mouse 'Data.csv']);
     writematrix(ClusteredDist, [SummaryDir 'Clustered' Mouse 'Dist.csv']);
     writematrix(ThisMouseClustered, [SummaryDir 'Mouse' Mouse 'Clustered.csv']);
