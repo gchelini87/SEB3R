@@ -1,19 +1,21 @@
-function [CombinedFile]=CombineData(column)
-%imput (required); number of colums of the table to combine (all table MUST
-%be same size)
+function [pathdir, CombinedFile]=CombineData(column)
+    %input (required); number of colums of the table to combine (all table MUST
+    %be same size)
+    % output: pathdir and combined mean dir
 
-[AllMeans, folderPickAll, filterindex] = uigetfile( ...
-{'All Files'}, ...
-'Pick a file', ...
-'MultiSelect', 'on');   
+pathdir = uigetdir();
+FindMeans = dir(pathdir);
 
-FindMeans=fullfile(folderPickAll,AllMeans);
-FindMeansTwo=string(FindMeans);
-
+%FindMeans=fullfile(folderPickAll,AllMeans);
+%FindMeansTwo=string(FindMeans);
+FindMeansTwo = FindMeans
 CombinedFile=zeros(1,column);
 for ind=1:length(FindMeansTwo);
-    ThisPose=readmatrix(FindMeansTwo(1,ind));
-    CombinedFile=vertcat(CombinedFile,ThisPose);
+    file = FindMeansTwo(ind);
+    if ~file.isdir
+        ThisPose=readmatrix(fullfile(pathdir, file.name));
+        CombinedFile=vertcat(CombinedFile,ThisPose);
+    end
 end
 clear AllMeans filterindex FindMeans FindMeansTwo folderPickAll ind ThisPose
 CombinedFile(1:1,:)=[];

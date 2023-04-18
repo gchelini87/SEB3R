@@ -11,8 +11,11 @@
 %distorsion where some subjects are overrepresented in one BM and other are not
 %present.
 
-nBM=10   %Chose the number of BM you want.
-WNClusters=CombineData(17);
+pkg load statistics
+
+nBMStr = inputdlg("Choose the number of BM you want.");
+nBM = str2num(nBMStr{1});
+[pathdir, WNClusters] = CombineData(17);
 Clusters=WNClusters(:,17);
 
 % Run the clustering
@@ -27,25 +30,23 @@ ModulesSummary=1:18;
 clear Clusters Modules WNClusters
 
 for Cluster2Explore=1:N;
-    num=length(WNmodules);
-    ClusterIndex=0;
+   num=length(WNmodules);
+   ClusterIndex=0;
 
-for ind=1:num;
-   if WNmodules(ind,18)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Module(ClusterIndex,1:18)=WNmodules(ind,1:18);
-    end
-end
-     NameCluster=string(num2let(Cluster2Explore));
-     assignin('base',NameCluster,Module);
-     ClusterMean=[mean(Module(:,2:17))];
-     
-     ClusterIndex=(ClusterIndex+1);
-     ModulesSummary=[ModulesSummary;Module];
-     clear Module
-    
+   for ind=1:num;
+      if WNmodules(ind,18)==Cluster2Explore;
+         ClusterIndex=(ClusterIndex+1);
+         Module(ClusterIndex,1:18)=WNmodules(ind,1:18);
+      end
+   end
+   ClusterIndex=(ClusterIndex+1);
+   ModulesSummary=[ModulesSummary;Module];
+   clear Module
+
 end
 ModulesSummary(1,:)=[];
 PostureModulesAssigned=[ModulesSummary(:,1),ModulesSummary(:,17),ModulesSummary(:,18)];
-writematrix(ModulesSummary,'ModulesSummary.csv');
-writematrix(PostureModulesAssigned,'ModulesAssigned.csv');
+summaryPath = fullfile(pathdir, '..', 'ModulesSummary.csv');
+posturePath = fullfile(pathdir, '..', 'ModulesAssigned.csv');
+writematrix(ModulesSummary, summaryPath);
+writematrix(PostureModulesAssigned, posturePath);

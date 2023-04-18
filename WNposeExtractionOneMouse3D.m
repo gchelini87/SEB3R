@@ -2,11 +2,11 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
     set(0, 'DefaultFigureVisible', 'off');
 
     % Import data from CSV file. Copy full path and file name
+    meanDistancesPathdir = [pathdir '/Mean Distances/'];
     pathdir = [pathdir '/' Mouse];
     [labels, csvs] = GetCSVs(pathdir, Mouse);
     matrix = LoadCSVsAsMatrix(pathdir, csvs);
 
-    meanDistancesPathdir = [pathdir '/Mean Distances/'];
     mkdir meanDistancesPathdir;
     
     [nSubjs, frames, cols] = size(matrix);

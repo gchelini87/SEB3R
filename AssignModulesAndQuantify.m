@@ -1,282 +1,137 @@
-%This step simply assign the final BM to each frame, animal-by-animal.
-%The output prints CSV files containing BM assigned at any given frame of
-%the original CSV files plus a summary table of BMs frequency for each test
-%trial.
+pathdir = uigetdir();
+%pathdir = 'WN results';
+files = dir(pathdir);
+nfiles = length(files);
 
-%CRITICAL: the subject ID needs to match the ID
-%of the files you are loading, otherwise the modules will match wrongly
-%with the postures
-Subject=()  %Declare subject name first! (as a number)
-
-% Get the ModulesAssigned.CSV file and create a new matrix with it. 
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ModulesAssigned=readmatrix(FindFILE);
-
-clear FindFILE FILEname folderFILE
-
-% Get the ClusteredFiles.CSV (ClusteredOF,
-% ClusteredSHAM,ClusteredT1,ClusteredT2,ClusteredT3)files and create a new matrix.
-% CRITICAL: files need to be loaded sequentially in temporal order;
-% changing order wil result in incorrect matching
-
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ClusteredOF=readmatrix(FindFILE);
-clear FindFILE FILEname folderFILE
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ClusteredSHAM=readmatrix(FindFILE);
-clear FindFILE FILEname folderFILE
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ClusteredT1=readmatrix(FindFILE);
-clear FindFILE FILEname folderFILE
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ClusteredT2=readmatrix(FindFILE);
-clear FindFILE FILEname folderFILE
-[FILEname,folderFILE]=uigetfile(); FindFILE=fullfile(folderFILE,FILEname);
-ClusteredT3=readmatrix(FindFILE);
-clear FindFILE FILEname folderFILE
-
-
-for index=(1:length(ModulesAssigned));  
-    
-for k=(1:max(ModulesAssigned(:,3)));
-      
-        for i=(1:length(ClusteredOF(:,8)));
-            
-        if ModulesAssigned(index,1)==Subject && ClusteredOF(i,8)==ModulesAssigned(index,2);
-               ClusteredOF(i,9)=(ModulesAssigned(index,3));
-          end 
+for i=1:nfiles
+    if files(i).isdir
+        num = files(i).name;
+        if ~isnan(str2double(num))
+            Assign(pathdir, num);
         end
-end
-end
-
-
-for index=(1:length(ModulesAssigned));  
-    
-for k=(1:max(ModulesAssigned(:,3)));
-      
-        for i=(1:length(ClusteredSHAM(:,8)));
-            
-        if ModulesAssigned(index,1)==Subject && ClusteredSHAM(i,8)==ModulesAssigned(index,2);
-               ClusteredSHAM(i,9)=(ModulesAssigned(index,3));
-          end 
-        end
-end
+    end
 end
 
+function Assign(pathdir, subject)
+   set(0,'DefaultFigureVisible','off');
 
-for index=(1:length(ModulesAssigned));  
-    
-for k=(1:max(ModulesAssigned(:,3)));
-      
-        for i=(1:length(ClusteredT1(:,8)));
-            
-        if ModulesAssigned(index,1)==Subject && ClusteredT1(i,8)==ModulesAssigned(index,2);
-               ClusteredT1(i,9)=(ModulesAssigned(index,3));
-          end 
-        end
-end
-end
+   %This step simply assign the final BM to each frame, animal-by-animal.
+   %The output prints CSV files containing BM assigned at any given frame of
+   %the original CSV files plus a summary table of BMs frequency for each test
+   %trial.
 
-for index=(1:length(ModulesAssigned));  
-    
-for k=(1:max(ModulesAssigned(:,3)));
-      
-        for i=(1:length(ClusteredT2(:,8)));
-            
-        if ModulesAssigned(index,1)==Subject && ClusteredT2(i,8)==ModulesAssigned(index,2);
-               ClusteredT2(i,9)=(ModulesAssigned(index,3));
-          end 
-        end
-end
-end
+   % Get the ModulesAssigned.CSV file and create a new matrix with it. 
+   ModulesAssigned = readmatrix(fullfile(pathdir, 'ModulesAssigned.csv'));
 
-for index=(1:length(ModulesAssigned));  
-    
-for k=(1:max(ModulesAssigned(:,3)));
-      
-        for i=(1:length(ClusteredT3(:,8)));
-            
-        if ModulesAssigned(index,1)==Subject && ClusteredT3(i,8)==ModulesAssigned(index,2);
-               ClusteredT3(i,9)=(ModulesAssigned(index,3));
-          end 
-        end
-end
-end
+   clusterPathdir = fullfile(pathdir, subject, 'Clusters');
+   modulePathdir = fullfile(pathdir, subject, 'Modules');
+   subjectAsNum = str2double(subject);
+   mkdir(modulePathdir);
 
-writematrix(ClusteredOF, 'MouseXOF.csv')
-writematrix(ClusteredSHAM, 'MouseXSHAM.csv')
-writematrix(ClusteredT1, 'MouseXT1.csv')
-writematrix(ClusteredT2, 'MouseXT2.csv')
-writematrix(ClusteredT3, 'MouseXT3.csv')
+   [phaseLabels, phaseCSVs] = GetCSVs(clusterPathdir, subject);
+   disp(clusterPathdir);
+   disp(phaseCSVs);
+   clusteredPhases = LoadCSVsAsMatrix(clusterPathdir, phaseCSVs);
+   numPhases = length(phaseLabels);
 
-figure ('Name','OF poses overtime')
-scatter(ClusteredOF(:,1),ClusteredOF(:,9));
-figure ('Name','SHAM poses overtime')
-scatter(ClusteredSHAM(:,1),ClusteredSHAM(:,9));
-figure ('Name','Trial1 poses overtime')
-scatter(ClusteredT1(:,1),ClusteredT1(:,9));
-figure ('Name','Trial2 poses overtime')
-scatter(ClusteredT2(:,1),ClusteredT2(:,9));
-figure ('Name','Trial3 poses overtime')
-scatter(ClusteredT3(:,1),ClusteredT3(:,9));
+   numClusters = max(ModulesAssigned(:,3)); % Maximum cluster number
+   % TODO: explain what 8 and 9 and 3 are.
 
-clear index i k
 
-%Starting From the ClusteredData matrix and the ModulesAssigned file extract each single cluster and plot
-%the corresponding posture on a scatter plot
+   modulesMean = zeros(numPhases, numClusters, 8);
 
-for Cluster2Explore=(1:max(ModulesAssigned(:,3)));
-    num=length(ClusteredOF);
-    Cluster(1:9)=zeros;
-    ClusterIndex=0;
+   % Reassign clusters to modules
+   for phase=(1:numPhases)
+      singlePhaseCluster = squeeze(clusteredPhases(phase, :, :));
 
-for ind=1:num;
-   if ClusteredOF(ind,9)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Cluster(ClusterIndex,1:9)=ClusteredOF(ind,1:9);
-
-   end
-end
-     ClusterFrequency=length(Cluster);
-     if Cluster==0;
-         ClusterFrequency=0;
-     end
-     ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-     ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
-       
-     ClusterIndex=(ClusterIndex+1);
-     OFModulesMean(Cluster2Explore,:)=[ClusterRecap];
-     clear Cluster
-end
-
-clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
-
-%Starting From the ClusteredData matrix and the ModulesAssigned file extract each single cluster and plot
-%the corresponding posture on a scatter plot
-
-for Cluster2Explore=(1:max(ModulesAssigned(:,3)));
-    num=length(ClusteredSHAM);
-    Cluster(1:9)=zeros;
-    ClusterIndex=0;
-
-for ind=1:num;
-   if ClusteredSHAM(ind,9)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Cluster(ClusterIndex,1:9)=ClusteredSHAM(ind,1:9);
-
-   end
-end
-     ClusterFrequency=length(Cluster);
-      if Cluster==0;
-         ClusterFrequency=0;
+      for index=(1:length(ModulesAssigned))
+         for i = (1:length(singlePhaseCluster(:, 8)))
+            if ModulesAssigned(index,1) == subjectAsNum && singlePhaseCluster(i,8)==ModulesAssigned(index,2);
+               clusteredPhases(phase, i, 9)=(ModulesAssigned(index,3));
+            end
+         end
       end
-     ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-     ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
-       
-     ClusterIndex=(ClusterIndex+1);
-     ShamModulesMean(Cluster2Explore,:)=[ClusterRecap];
-     clear Cluster
-end
 
-clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
+      % Reload, just in case Matlab keeps an old version
+      singlePhaseCluster = squeeze(clusteredPhases(phase, :, :));
+      phaseName = phaseLabels{phase};
+      phasePath = fullfile(modulePathdir, ['Mouse' phaseName '.csv'] );
+      writematrix(singlePhaseCluster, phasePath);
 
-%Starting From the ClusteredData matrix and the ModulesAssigned file extract each single cluster and plot
-%the corresponding posture on a scatter plot
+      title = [phaseName 'poses overtime'];
+      fig = figure ('Name', title);
+      scatter(singlePhaseCluster(:,1), singlePhaseCluster(:,9));
+      saveas(fig, fullfile(modulePathdir, [phaseName '_over_time.png']));
 
-for Cluster2Explore=(1:max(ModulesAssigned(:,3)));
-    num=length(ClusteredT1);
-    Cluster(1:9)=zeros;
-    ClusterIndex=0;
 
-for ind=1:num;
-   if ClusteredT1(ind,9)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Cluster(ClusterIndex,1:9)=ClusteredT1(ind,1:9);
+      % Calculate per-BM frequency distribution
+      for Cluster2Explore=1:numClusters
+         num=length(singlePhaseCluster);
+         Cluster(1:9)=zeros;
+         ClusterIndex=0;
 
-   end
-end
-     ClusterFrequency=length(Cluster);
-      if Cluster==0;
-         ClusterFrequency=0;
+         for ind=1:num;
+            if singlePhaseCluster(ind,9)==Cluster2Explore;
+               % There are better ways to do this actually...
+               ClusterIndex=(ClusterIndex+1);
+               Cluster(ClusterIndex,1:9)=singlePhaseCluster(ind,1:9);
+            end
+         end
+         ClusterFrequency=length(Cluster);
+         if Cluster==0;
+            ClusterFrequency=0;
+         end
+         ClusterMean(1:6)=[mean(Cluster(:,2:7))];
+         ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
+
+         ClusterIndex=(ClusterIndex+1);
+         modulesMean(phase, Cluster2Explore,:)=[ClusterRecap];
       end
-     ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-     ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
-       
-     ClusterIndex=(ClusterIndex+1);
-     T1ModulesMean(Cluster2Explore,:)=[ClusterRecap];
-     clear Cluster
-end
-
-clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
-
-%Starting From the ClusteredData matrix and the ModulesAssigned file extract each single cluster and plot
-%the corresponding posture on a scatter plot
-
-for Cluster2Explore=(1:max(ModulesAssigned(:,3)));
-    num=length(ClusteredT2);
-    Cluster(1:9)=zeros;
-    ClusterIndex=0;
-
-for ind=1:num;
-   if ClusteredT2(ind,9)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Cluster(ClusterIndex,1:9)=ClusteredT2(ind,1:9);
-
    end
-end
-     ClusterFrequency=length(Cluster);
-      if Cluster==0;
-         ClusterFrequency=0;
-      end
-     ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-     ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
-       
-     ClusterIndex=(ClusterIndex+1);
-     T2ModulesMean(Cluster2Explore,:)=[ClusterRecap];
-     clear Cluster
-end
+   
+   clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
 
-clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
+   %Generate Matrix containing the frame frequencies for each modules in each
+   %trial
 
-%Starting From the ClusteredData matrix and the ModulesAssigned file extract each single cluster and plot
-%the corresponding posture on a scatter plot
-
-for Cluster2Explore=(1:max(ModulesAssigned(:,3)));
-    num=length(ClusteredT3);
-    Cluster(1:9)=zeros;
-    ClusterIndex=0;
-
-for ind=1:num;
-   if ClusteredT3(ind,9)==Cluster2Explore;
-       ClusterIndex=(ClusterIndex+1);
-        Cluster(ClusterIndex,1:9)=ClusteredT3(ind,1:9);
-
+   FrequenciesModules = zeros(numClusters, numPhases*8);
+   for i=0:numPhases-1
+      FrequenciesModules(:, i*8+1:(i+1)*8) = modulesMean(i+1, :, :);
    end
+
+   FrequenciesMatrix = FrequenciesModules(:, 8:numPhases*8:8);
+
+   writematrix(FrequenciesModules, fullfile(modulePathdir, ...
+      sprintf('FrequenciesModules.csv', subject)));
+   writematrix(FrequenciesMatrix, fullfile(modulePathdir, ...
+      sprintf('Frequencies.csv', subject)));
+
+   set(0,'DefaultFigureVisible','on');
+
+   %The output also plot BM distribution over the time of the test on a
+   %scatter plot
+   fig = figure('Name','Modules Heatmap');
+   heatmap(FrequenciesMatrix);
+   colormap(jet);
+   saveas(fig, fullfile(modulePathdir, sprintf("Reassigned.png", subject)));
+
 end
-     ClusterFrequency=length(Cluster);
-      if Cluster==0;
-         ClusterFrequency=0;
-      end
-     ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-     ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
-       
-     ClusterIndex=(ClusterIndex+1);
-     T3ModulesMean(Cluster2Explore,:)=[ClusterRecap];
-     clear Cluster
+
+function [labels, fileList]=GetCSVs(pathdir, mouse)
+    % Detect all CSVs in our file
+    files = dir(pathdir);
+    nfiles = size(files);
+    fileList = {};
+    labels = {};
+    prefixToStrip = 'Clustered';
+    suffixToStrip = '.csv'; 
+    for i = 1:nfiles
+        filename = files(i).name;
+        if endsWith(filename, suffixToStrip) && startsWith(filename, prefixToStrip);
+            stripped = filename(length(prefixToStrip)+1:end-length(suffixToStrip));
+            labels{end+1} = stripped;
+            fileList{end+1} = filename;
+        end
+    end
 end
 
-clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
-
-%Generate Matrix containing the frame frequencies for each modules in each
-%trial
-FrequenciesModules=[OFModulesMean ShamModulesMean T1ModulesMean T2ModulesMean T3ModulesMean];
-FrequenciesMatrix= [OFModulesMean(:,8) ShamModulesMean(:,8) T1ModulesMean(:,8) T2ModulesMean(:,8) T3ModulesMean(:,8)];
-writematrix(FrequenciesModules, 'FrequenciesModulesMouseX.csv');
-writematrix(FrequenciesMatrix, 'FrequenciesMouseX.csv');
-
-%The output also plot BM distribution over the time of the test on a
-%scatter plot
-figure('Name','Modules Heatmap')
-heatmap(FrequenciesMatrix)
-colormap(jet)
- 
