@@ -5,17 +5,17 @@ nfiles = length(files);
 
 for i=1:nfiles
     if files(i).isdir
-        num = files(i).name;
-        if ~isnan(str2double(num))
-            Assign(pathdir, num);
+        numFrames = files(i).name;
+        if ~isnan(str2double(numFrames))
+            Assign(pathdir, numFrames);
         end
     end
 end
 
-function Assign(pathdir, subject)
+function FrequenciesModules = Assign(pathdir, subject)
    set(0,'DefaultFigureVisible','off');
 
-   %This step simply assign the final BM to each frame, animal-by-animal.
+   %This step assigns the final BM to each frame, animal-by-animal.
    %The output prints CSV files containing BM assigned at any given frame of
    %the original CSV files plus a summary table of BMs frequency for each test
    %trial.
@@ -34,11 +34,10 @@ function Assign(pathdir, subject)
    clusteredPhases = LoadCSVsAsMatrix(clusterPathdir, phaseCSVs);
    numPhases = length(phaseLabels);
 
-   numClusters = max(ModulesAssigned(:,3)); % Maximum cluster number
+   numModules = max(ModulesAssigned(:,3)); % Maximum cluster number
    % TODO: explain what 8 and 9 and 3 are.
 
-
-   modulesMean = zeros(numPhases, numClusters, 8);
+   modulesMean = zeros(numPhases, numModules, 8);
 
    % Reassign clusters to modules
    for phase=(1:numPhases)
@@ -65,48 +64,56 @@ function Assign(pathdir, subject)
 
 
       % Calculate per-BM frequency distribution
-      for Cluster2Explore=1:numClusters
-         num=length(singlePhaseCluster);
+      for Module2Explore=1:numModules
+         numFrames=length(singlePhaseCluster);
+         % ... WHY ARE WE DOING THIS???
          Cluster(1:9)=zeros;
          ClusterIndex=0;
 
-         for ind=1:num;
-            if singlePhaseCluster(ind,9)==Cluster2Explore;
+         for frame=1:numFrames
+            if singlePhaseCluster(frame,9)==Module2Explore
                % There are better ways to do this actually...
                ClusterIndex=(ClusterIndex+1);
-               Cluster(ClusterIndex,1:9)=singlePhaseCluster(ind,1:9);
+               Cluster(ClusterIndex,1:9)=squeeze(singlePhaseCluster(frame,1:9));
             end
          end
-         ClusterFrequency=length(Cluster);
-         if Cluster==0;
+         disp(size(Cluster));
+         ClusterFrequency=length(Cluster)
+         if Cluster==0
             ClusterFrequency=0;
          end
          ClusterMean(1:6)=[mean(Cluster(:,2:7))];
-         ClusterRecap=[Cluster2Explore ClusterMean ClusterFrequency];
+         disp(size(Cluster(:, 2:7)));
+         disp(size(mean(Cluster(:, 2:7))));
+         disp(size(Cluster));
+         ClusterRecap=[Module2Explore ClusterMean ClusterFrequency];
 
          ClusterIndex=(ClusterIndex+1);
-         modulesMean(phase, Cluster2Explore,:)=[ClusterRecap];
+         modulesMean(phase, Module2Explore,:)=[ClusterRecap];
+         clear Cluster
       end
    end
    
-   clear Cluster2Explore ClusterFrequency ClusterIndex ClusterMean ind num ClusterRecap
+   %clear Module2Explore ClusterFrequency ClusterIndex ClusterMean frame numFrames ClusterRecap
 
    %Generate Matrix containing the frame frequencies for each modules in each
    %trial
 
-   FrequenciesModules = zeros(numClusters, numPhases*8);
-   for i=0:numPhases-1
-      FrequenciesModules(:, i*8+1:(i+1)*8) = modulesMean(i+1, :, :);
+   
+   FrequenciesModules = [];
+   FrequenciesMatrix = [];
+   for i = 1:numPhases
+       FrequenciesModules = [FrequenciesModules modulesMean(i, :, :)];
+       FrequenciesMatrix = [FrequenciesMatrix; modulesMean(i, :, 8)];
    end
 
-   FrequenciesMatrix = FrequenciesModules(:, 8:numPhases*8:8);
+   FrequenciesMatrix = FrequenciesMatrix.';
+
 
    writematrix(FrequenciesModules, fullfile(modulePathdir, ...
       sprintf('FrequenciesModules.csv', subject)));
    writematrix(FrequenciesMatrix, fullfile(modulePathdir, ...
       sprintf('Frequencies.csv', subject)));
-
-   set(0,'DefaultFigureVisible','on');
 
    %The output also plot BM distribution over the time of the test on a
    %scatter plot
@@ -114,7 +121,7 @@ function Assign(pathdir, subject)
    heatmap(FrequenciesMatrix);
    colormap(jet);
    saveas(fig, fullfile(modulePathdir, sprintf("Reassigned.png", subject)));
-
+   set(0,'DefaultFigureVisible','on');
 end
 
 function [labels, fileList]=GetCSVs(pathdir, mouse)
