@@ -4,11 +4,14 @@ function out=LoadCSVsAsMatrix(mousePathdir, csvs)
     % F being the number of frames (ie. each csv's number of rows),
     % C is the number of columns
 
+    % Parameters:
+    % - mousePathdir (string): the path of the mouse subject
+    % - csvs: the list of csvs without any parent folder to load in our final matrix
+
     % First, we need to know how big any of these matrices are
     testMatrix = readmatrix(fullfile(mousePathdir, csvs{1}));
     [frames, columns] = size(testMatrix);
-    frames = frames - 1; % FIXME
-
+    
     out = zeros(1, frames, columns);
 
     for i=1:length(csvs)

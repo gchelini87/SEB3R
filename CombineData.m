@@ -3,20 +3,21 @@ function [pathdir, CombinedFile]=CombineData(column)
     %be same size)
     % output: pathdir and combined mean dir
 
-pathdir = uigetdir();
-FindMeans = dir(pathdir);
+    pathdir = uigetdir();
+    FindMeans = dir(pathdir);
 
-%FindMeans=fullfile(folderPickAll,AllMeans);
-%FindMeansTwo=string(FindMeans);
-FindMeansTwo = FindMeans
-CombinedFile=zeros(1,column);
-for ind=1:length(FindMeansTwo);
-    file = FindMeansTwo(ind);
-    if ~file.isdir
-        ThisPose=readmatrix(fullfile(pathdir, file.name));
-        CombinedFile=vertcat(CombinedFile,ThisPose);
+    %FindMeans=fullfile(folderPickAll,AllMeans);
+    %FindMeansTwo=string(FindMeans);
+    FindMeansTwo = FindMeans
+    CombinedFile=zeros(1,column);
+    for ind=1:length(FindMeansTwo);
+        file = FindMeansTwo(ind);
+        if ~file.isdir
+            ThisPose=readmatrix(fullfile(pathdir, file.name));
+            disp(size(CombinedFile))
+            disp(size(ThisPose))
+            CombinedFile=vertcat(CombinedFile,ThisPose);
+        end
     end
-end
-clear AllMeans filterindex FindMeans FindMeansTwo folderPickAll ind ThisPose
-CombinedFile(1:1,:)=[];
+    CombinedFile(1:1,:)=[];
 end

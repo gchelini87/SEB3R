@@ -11,8 +11,6 @@
 %distorsion where some subjects are overrepresented in one BM and other are not
 %present.
 
-pkg load statistics
-
 nBMStr = inputdlg("Choose the number of BM you want.");
 nBM = str2num(nBMStr{1});
 [pathdir, WNClusters] = CombineData(17);
@@ -46,7 +44,7 @@ for Cluster2Explore=1:N;
 end
 ModulesSummary(1,:)=[];
 PostureModulesAssigned=[ModulesSummary(:,1),ModulesSummary(:,17),ModulesSummary(:,18)];
-summaryPath = fullfile(pathdir, '..', 'ModulesSummary.csv');
-posturePath = fullfile(pathdir, '..', 'ModulesAssigned.csv');
+summaryPath = fullfile(pathdir, 'ModulesSummary.csv');
+posturePath = fullfile(pathdir, 'ModulesAssigned.csv');
 writematrix(ModulesSummary, summaryPath);
 writematrix(PostureModulesAssigned, posturePath);

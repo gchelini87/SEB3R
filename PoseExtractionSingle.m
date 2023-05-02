@@ -1,4 +1,4 @@
-function WNposeExtractionOneMouse3D(pathdir, Mouse)
+function PoseExtractionSingle(pathdir, Mouse)
     set(0, 'DefaultFigureVisible', 'off');
 
     % Import data from CSV file. Copy full path and file name
@@ -143,7 +143,7 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
     mkdir(ClusterDir);
     mkdir(SummaryDir);
 
-    %Print Outcome in CSV files
+    %Print Outcome and cluster in CSV files
     writematrix(AllClustersMean, [SummaryDir 'Mouse' Mouse 'CoordMeans.csv']);
     writematrix(ClusteredDistMeans, [meanDistancesPathdir 'Mouse' Mouse 'DistMeans.csv']);
     writematrix(ClusteredYData, [SummaryDir 'Clustered' Mouse 'Data.csv']);
@@ -155,12 +155,6 @@ function WNposeExtractionOneMouse3D(pathdir, Mouse)
         clustered = [ClusteredYData(frames*subjId+1:frames*(subjId+1), :)];
         writematrix(clustered, [ClusterDir 'Clustered' label '.csv']);
     end
-
-
-    %Eliminate unwanted variables
-    clear ans ind num ClusterIndex Xcoord Ycoord Cluster2Explore NameCluster NameCluster ClusterMean toAVG Dist2Avg code T1name T2name T3name SHAMname OFname DistIndex
-
-    %Print Clusters into CSV files
 
     set(0, 'DefaultFigureVisible', 'on');
 end
@@ -179,25 +173,5 @@ function [labels, fileList]=GetCSVs(pathdir, mouse)
             labels{end+1} = stripped;
             fileList{end+1} = filename;
         end
-    end
-end
-
-function out=LoadCSVsAsMatrix(mousePathdir, csvs)
-    % Load all csvs in a matrix. The resulting matrix is N x F x C
-    % with N being the number of subjects (ie. the number of csvs),
-    % F being the number of frames (ie. each csv's number of rows),
-    % C is the number of columns
-
-    % First, we need to know how big any of these matrices are
-    testMatrix = readmatrix([mousePathdir '/' csvs{1}]);
-    [frames, columns] = size(testMatrix);
-    frames = frames - 1; % FIXME
-
-    out = zeros(1, frames, columns);
-
-    for i=1:length(csvs)
-        csv = csvs{i};
-        matrix = readmatrix([mousePathdir '/' csv]);
-        out(i, :, :) = matrix(1:frames, :);
     end
 end
