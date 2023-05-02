@@ -1,5 +1,4 @@
-pathdir = uigetdir();
-%pathdir = 'WN results';
+pathdir = uigetdir(); % TODO: can this be passed along in SEB3R?
 files = dir(pathdir);
 nfiles = length(files);
 

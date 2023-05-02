@@ -13,28 +13,25 @@
 
 nBMStr = inputdlg("Choose the number of BM you want.");
 nBM = str2num(nBMStr{1});
-[pathdir, WNClusters] = CombineData(17);
-Clusters=WNClusters(:,17);
+[pathdir, ExpClusters] = CombineData(17);
+Clusters=ExpClusters(:,17);
 
 % Run the clustering
-Modules=kmeans(WNClusters(:,2:16),nBM);
+Modules=kmeans(ExpClusters(:,2:16),nBM);
 
-WNmodules=[WNClusters,Modules];
+PrevModules=[ExpClusters,Modules];
 N=max(Modules);
 
 ModulesSummary=1:18;             
 
-
-clear Clusters Modules WNClusters
-
 for Cluster2Explore=1:N;
-   num=length(WNmodules);
+   num=length(PrevModules);
    ClusterIndex=0;
 
    for ind=1:num;
-      if WNmodules(ind,18)==Cluster2Explore;
+      if PrevModules(ind,18)==Cluster2Explore;
          ClusterIndex=(ClusterIndex+1);
-         Module(ClusterIndex,1:18)=WNmodules(ind,1:18);
+         Module(ClusterIndex,1:18)=PrevModules(ind,1:18);
       end
    end
    ClusterIndex=(ClusterIndex+1);
