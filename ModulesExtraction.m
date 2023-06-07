@@ -13,7 +13,7 @@
 
 nBMStr = inputdlg("Choose the number of BM you want.");
 nBM = str2num(nBMStr{1});
-[pathdir, ExpClusters] = CombineData(17);
+[pathdir, subjdir, ExpClusters] = CombineData(17);
 Clusters=ExpClusters(:,17);
 
 % Run the clustering
@@ -41,7 +41,7 @@ for Cluster2Explore=1:N;
 end
 ModulesSummary(1,:)=[];
 PostureModulesAssigned=[ModulesSummary(:,1),ModulesSummary(:,17),ModulesSummary(:,18)];
-summaryPath = fullfile(pathdir, 'ModulesSummary.csv');
-posturePath = fullfile(pathdir, 'ModulesAssigned.csv');
+summaryPath = fullfile(subjdir, 'ModulesSummary.csv');
+posturePath = fullfile(subjdir, 'ModulesAssigned.csv');
 writematrix(ModulesSummary, summaryPath);
 writematrix(PostureModulesAssigned, posturePath);
