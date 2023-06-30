@@ -6,3 +6,5 @@
 PoseExtraction
 ModulesExtraction
 AssignModulesAndQuantify
+SequenceDuration
+

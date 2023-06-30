@@ -19,7 +19,7 @@ Secondly, **install the [kmeans_opt](https://it.mathworks.com/matlabcentral/file
 We provide a whisker nuisance dataset experiment for reference. To run the analysis, you can either:
 
 - run `SEB3R.m`, which will automatically call the modules mentioned below, or
-- run in order `PoseExtraction.m`, `ModulesExtraction.m`, `AssignModulesAndQuantify.m`. **This is recommended**, as it requires you to *think* about how many body modules you want.
+- run in order `PoseExtraction.m`, `ModulesExtraction.m`, `AssignModulesAndQuantify.m`, `SequenceDuration.m` (**NEW**). **This is recommended**, as it requires you to *think* about how many body modules you want.
 
 This is a breakdown of what each step entails:
 
@@ -29,6 +29,8 @@ This is a breakdown of what each step entails:
 
 3. Lastly, re-perform clustering on the newly found BMs. Run `AssignModulesAndQuantify.m`.
 
+4. Optionally, extract the sequence length for each body module of interest. After being propmted a directory for the dataset of interest, it will create a directory
+containing all sequencing grouped by experimental condition.
 
 ### Dataset format
 

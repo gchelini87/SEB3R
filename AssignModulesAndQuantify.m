@@ -27,7 +27,7 @@ function FrequenciesModules = Assign(pathdir, subject)
    subjectAsNum = str2double(subject);
    mkdir(modulePathdir);
 
-   [phaseLabels, phaseCSVs] = GetCSVs(clusterPathdir, subject);
+   [phaseLabels, phaseCSVs] = GetCSVs(clusterPathdir, 'Clustered');
    disp(clusterPathdir);
    disp(phaseCSVs);
    clusteredPhases = LoadCSVsAsMatrix(clusterPathdir, phaseCSVs);
@@ -121,23 +121,5 @@ function FrequenciesModules = Assign(pathdir, subject)
    colormap(jet);
    saveas(fig, fullfile(modulePathdir, sprintf("Reassigned.png", subject)));
    set(0,'DefaultFigureVisible','on');
-end
-
-function [labels, fileList]=GetCSVs(pathdir, mouse)
-    % Detect all CSVs in our file
-    files = dir(pathdir);
-    nfiles = size(files);
-    fileList = {};
-    labels = {};
-    prefixToStrip = 'Clustered';
-    suffixToStrip = '.csv'; 
-    for i = 1:nfiles
-        filename = files(i).name;
-        if endsWith(filename, suffixToStrip) && startsWith(filename, prefixToStrip);
-            stripped = filename(length(prefixToStrip)+1:end-length(suffixToStrip));
-            labels{end+1} = stripped;
-            fileList{end+1} = filename;
-        end
-    end
 end
 
