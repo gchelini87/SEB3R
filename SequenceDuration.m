@@ -1,3 +1,5 @@
+import tools.GetCSVs;
+
 pathdir = uigetdir();
 files = dir(pathdir);
 nfiles = size(files);
@@ -12,6 +14,7 @@ for i=1:nfiles[1];
     if files(i).isdir && ~isnan(str2double(num));
         subjPath = fullfile(pathdir, num, "Modules");
         conditions = GetCSVs(subjPath, "Mouse");
+
         % The old version used different names for the modules.
         if length(conditions) == 0;
             disp("Warning: this dataset was obtained from an old version of SEB3R.");

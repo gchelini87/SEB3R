@@ -11,6 +11,8 @@
 %distorsion where some subjects are overrepresented in one BM and other are not
 %present.
 
+% TODO needs rewriting
+
 nBMStr = inputdlg("Choose the number of BM you want.");
 nBM = str2num(nBMStr{1});
 [pathdir, subjdir, ExpClusters] = CombineData(17);
@@ -37,11 +39,36 @@ for Cluster2Explore=1:N;
    ClusterIndex=(ClusterIndex+1);
    ModulesSummary=[ModulesSummary;Module];
    clear Module
-
 end
+
 ModulesSummary(1,:)=[];
 PostureModulesAssigned=[ModulesSummary(:,1),ModulesSummary(:,17),ModulesSummary(:,18)];
 summaryPath = fullfile(subjdir, 'ModulesSummary.csv');
 posturePath = fullfile(subjdir, 'ModulesAssigned.csv');
 writematrix(ModulesSummary, summaryPath);
 writematrix(PostureModulesAssigned, posturePath);
+
+function [pathdir, subjdir, CombinedFile]=CombineData(column)
+    % TODO rewrite docstring
+    %input (required); number of colums of the table to combine (all table MUST
+    %be same size)
+    % output: pathdir and combined mean dir
+
+    pathdir = uigetdir();
+    subjdir = fullfile(pathdir, '..');
+    FindMeans = dir(pathdir);
+
+    disp(column);
+    disp(subjdir);
+    CombinedFile=zeros(1,column);
+    for ind=1:length(FindMeans);
+        file = FindMeans(ind);
+        if ~file.isdir
+            ThisPose=readmatrix(fullfile(pathdir, file.name));
+            disp(size(CombinedFile))
+            disp(size(ThisPose))
+            CombinedFile=vertcat(CombinedFile,ThisPose);
+        end
+    end
+    CombinedFile(1:1,:)=[];
+end

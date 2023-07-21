@@ -1,7 +1,11 @@
+import tools.GetCSVs;
+% import tools.GetSubjects;
+
 pathdir = uigetdir(); % TODO: can this be passed along in SEB3R?
 files = dir(pathdir);
 nfiles = length(files);
 
+% TODO: replace with GetSubjects?
 for i=1:nfiles
     if files(i).isdir
         numFrames = files(i).name;

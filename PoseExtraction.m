@@ -1,6 +1,8 @@
 % This entry point will perform all analyses on your mice data.
 % You will be prompted to provide a folder that contains your DLC results
 
+import tools.PoseExtractionSingle;
+
 pathdir = uigetdir();
 files = dir(pathdir);
 nfiles = size(files);

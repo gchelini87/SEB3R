@@ -1,4 +1,7 @@
 function PoseExtractionSingle(pathdir, Mouse)
+    import tools.GetCSVs;
+    import tools.LoadCSVsAsMatrix;
+
     set(0, 'DefaultFigureVisible', 'off');
 
     % Import data from CSV file. Copy full path and file name
@@ -8,7 +11,7 @@ function PoseExtractionSingle(pathdir, Mouse)
     matrix = LoadCSVsAsMatrix(pathdir, csvs);
 
     mkdir meanDistancesPathdir;
-    
+ 
     [nSubjs, frames, cols] = size(matrix);
 
     % Take all subjects and concat them in our matrix.
